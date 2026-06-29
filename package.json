@@ -1,0 +1,22 @@
+{
+  "name": "moyan-iot-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "predev": "npm run build -w @moyan/contracts",
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w @moyan/api\" \"npm run dev -w @moyan/web\"",
+    "dev:api": "npm run dev -w @moyan/api",
+    "dev:web": "npm run dev -w @moyan/web",
+    "build": "npm run build -w @moyan/contracts && npm run build -w @moyan/api && npm run build -w @moyan/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "latest",
+    "typescript": "latest"
+  }
+}
