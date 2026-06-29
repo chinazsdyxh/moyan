@@ -1,0 +1,9 @@
+{
+  "src": [
+    "pages/landing",
+    "pages/display",
+    "pages/DisplayPage",
+    "pages/monitor",
+    "pages/PhoneCameraPage"
+  ]
+}
