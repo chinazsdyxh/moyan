@@ -44,7 +44,7 @@
 | `Humi` | double | R | % | 湿度 |
 | `Lumi` | int | R | lx | 光照 |
 | `Dist` | int | R | 由固件确认 | 距离 |
-| `LampST` | string/enum | RW | `ON/OFF` | 灯状态，可用于 desired |
+| `LampS` | string/enum | RW | `ON/OFF` | 当前已部署模型的灯状态字段，可用于 desired |
 | `CtlMode` | string/enum | RW | `AUTO/HUMAN/VOICE` | 控制模式 |
 | `battery` | int | R | % | 电量，0—100 |
 | `threshold` | double | RW | °C | Web 端期望温度阈值 |
@@ -59,7 +59,7 @@
 | `CtlMode` | `ctlMode: AUTO/HUMAN/VOICE` | `result: string` |
 | `SetThreshold`（可选） | `threshold: double` | `result: string` |
 
-命令、属性和服务 ID 必须与固件、HarmonyOS、后端完全一致。后端同时兼容 `Temp/Humi/Lumi/Dist/LampST/CtlMode` 和常见小驼峰字段，但云端模型仍应选定唯一命名。
+命令、属性和服务 ID 必须与固件、HarmonyOS、后端完全一致。当前已部署模型使用 `Temp/Humi/Lumi/Dist/LampS/CtlMode`；后端也兼容旧字段 `LampST` 和常见小驼峰字段。
 
 ## 3. 注册设备与 MQTT 参数
 
@@ -106,7 +106,7 @@
       "Humi": 53.2,
       "Lumi": 460,
       "Dist": 128,
-      "LampST": "ON",
+      "LampS": "ON",
       "CtlMode": "AUTO",
       "battery": 86
     },

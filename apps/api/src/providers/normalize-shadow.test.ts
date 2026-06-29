@@ -40,4 +40,37 @@ describe('normalizeShadow', () => {
     expect(result.desired).toEqual({ threshold: 28 });
     expect(result.version).toBe(4);
   });
+
+  it('normalizes the LampS field returned by the deployed IoTDA model', () => {
+    const result = normalizeShadow(
+      {
+        shadow: [{
+          service_id: 'smartRoom',
+          reported: {
+            properties: {
+              Temp: '27.09',
+              Humi: '60.06',
+              Lumi: '72',
+              Dist: '-1',
+              LampS: 'OFF',
+              CtlMode: 'AUTO'
+            }
+          }
+        }]
+      },
+      'roomone',
+      'smartRoom',
+      'ONLINE'
+    );
+
+    expect(result.reported).toEqual({
+      temperature: 27.09,
+      humidity: 60.06,
+      luminance: 72,
+      distance: -1,
+      battery: null,
+      lamp: 'OFF',
+      mode: 'AUTO'
+    });
+  });
 });

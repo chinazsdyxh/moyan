@@ -46,7 +46,7 @@ function normalizeMetrics(properties: UnknownRecord): SmartRoomMetrics {
     luminance: toNumber(firstValue(properties, ['luminance', 'Lumi', 'lumi', 'illumination'])),
     distance: toNumber(firstValue(properties, ['distance', 'Dist', 'dist'])),
     battery: toNumber(firstValue(properties, ['battery', 'Battery', 'batteryLevel'])),
-    lamp: toLamp(firstValue(properties, ['switch', 'LampST', 'LampSt', 'lampStatus', 'light'])),
+    lamp: toLamp(firstValue(properties, ['switch', 'LampS', 'LampST', 'LampSt', 'lampStatus', 'light'])),
     mode: toMode(firstValue(properties, ['mode', 'CtlMode', 'ctlMode', 'ctlmode']))
   };
 }
