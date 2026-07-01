@@ -10,6 +10,13 @@ import { MockDeviceProvider } from './providers/mock-provider.js';
 import { ProviderError } from './providers/provider.js';
 import { DeviceService } from './services/device-service.js';
 
+
+//-----------------------------------数据库测试修改起始--------------------------------
+import client from './database.js';
+import { request } from 'node:http';
+//-----------------------------------数据库测试修改终止--------------------------------
+
+
 const provider = config.mode === 'huaweicloud' ? new HuaweiCloudProvider() : new MockDeviceProvider();
 const devices = new DeviceService(provider);
 const app = Fastify({ logger: true, requestIdHeader: 'x-request-id' });
@@ -144,6 +151,26 @@ app.get('/api/v1/events', async (request, reply) => {
     clearInterval(heartbeatTimer);
   });
 });
+
+
+//-----------------------------------数据库测试修改起始--------------------------------
+app.get('/api/v1/db/test', async (request, reply) => {
+  try {
+    const result = await client.query('SELECT * FROM test_table');
+    return reply.send(response(request, { 
+      success: true, 
+      data: result.rows,
+      count: result.rowCount 
+    }));
+  } catch (error) {
+    return reply.code(500).send({
+      success: false,
+      error: error instanceof Error ? error.message : '数据库查询失败'
+    });
+  }
+});
+//-----------------------------------数据库测试修改末尾--------------------------------
+
 
 app.setNotFoundHandler((request, reply) => {
   const problem: ApiProblem = {

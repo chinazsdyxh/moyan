@@ -16,7 +16,11 @@
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
+    "@types/pg": "^8.20.0",
     "concurrently": "latest",
     "typescript": "latest"
+  },
+  "dependencies": {
+    "pg": "^8.22.0"
   }
 }
