@@ -1,4 +1,5 @@
 import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect } from '@ohos/hypium';
+import { buildAssistantChatUrl, buildAssistantConfirmUrl } from '../main/ets/config/CloudConfig';
 
 export default function localUnitTest() {
   describe('localUnitTest', () => {
@@ -28,6 +29,10 @@ export default function localUnitTest() {
       // Defines a variety of assertion methods, which are used to declare expected boolean conditions.
       expect(a).assertContain(b);
       expect(a).assertEqual(a);
+    });
+    it('buildAssistantUrls', 0, () => {
+      expect(buildAssistantChatUrl()).assertContain('/api/v1/assistant/chat');
+      expect(buildAssistantConfirmUrl()).assertContain('/api/v1/assistant/confirm');
     });
   });
 }
