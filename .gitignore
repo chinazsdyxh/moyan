@@ -10,6 +10,7 @@
 /apps/*/.env.*
 !/apps/*/.env.example
 /coverage
+**/.dev-server*.log
 /oh_modules
 /local.properties
 /.idea
