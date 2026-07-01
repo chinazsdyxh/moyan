@@ -27,6 +27,7 @@ import {
   Video,
   Wifi
 } from 'lucide-react';
+import { AssistantPanel } from './components/AssistantPanel';
 import { MetricCard } from './components/MetricCard';
 import type { TrendPoint } from './components/TrendChart';
 import { api } from './lib/api';
@@ -146,6 +147,13 @@ function Dashboard() {
     },
     onError: (error) => message.error(error.message)
   });
+
+  const refreshDeviceActivity = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['shadow', selectedDeviceId] }),
+      queryClient.invalidateQueries({ queryKey: ['logs', selectedDeviceId] })
+    ]);
+  };
 
   const selectedDevice = deviceList.find((device) => device.deviceId === selectedDeviceId);
   const provider = healthQuery.data?.data.provider ?? 'mock';
@@ -286,6 +294,12 @@ function Dashboard() {
               </div>
               <small>真实设备需要在产品模型中定义可写属性 threshold。</small>
             </div>
+
+            <AssistantPanel
+              deviceId={selectedDeviceId}
+              metrics={metrics}
+              onCommandConfirmed={refreshDeviceActivity}
+            />
 
             <div className="control-panel__foot">
               <span><CircleDot size={13} />命令经服务端代理</span><span>最近响应 {timeText(shadow?.observedAt)}</span>

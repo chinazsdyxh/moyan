@@ -11,6 +11,9 @@ const configSchema = z.object({
   IOTDA_SERVICE_ID: z.string().default('smartRoom'),
   IOTDA_LIGHT_COMMAND_NAME: z.string().default('Light'),
   IOTDA_MODE_COMMAND_NAME: z.string().default('CtlMode'),
+  DIFY_API_BASE: z.string().url().default('https://api.dify.ai/v1'),
+  DIFY_API_KEY: z.string().optional(),
+  DIFY_APP_USER_PREFIX: z.string().default('moyan_user'),
   HUAWEICLOUD_IAM_ENDPOINT: z.string().url().default('https://iam.cn-north-4.myhuaweicloud.com'),
   HUAWEICLOUD_IAM_USERNAME: z.string().optional(),
   HUAWEICLOUD_IAM_PASSWORD: z.string().optional(),
@@ -31,6 +34,11 @@ export const config = {
     serviceId: parsed.IOTDA_SERVICE_ID,
     lightCommandName: parsed.IOTDA_LIGHT_COMMAND_NAME,
     modeCommandName: parsed.IOTDA_MODE_COMMAND_NAME
+  },
+  dify: {
+    apiBase: parsed.DIFY_API_BASE.replace(/\/$/, ''),
+    apiKey: parsed.DIFY_API_KEY,
+    appUserPrefix: parsed.DIFY_APP_USER_PREFIX
   },
   iam: {
     endpoint: parsed.HUAWEICLOUD_IAM_ENDPOINT.replace(/\/$/, ''),
