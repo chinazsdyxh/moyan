@@ -1,12 +1,13 @@
 import { Client } from 'pg';
+import { config } from './config.js';
 
 // 创建数据库连接
 const client = new Client({
-    host: '127.0.0.1',      // 你的数据库地址
-    port: 54321,            // 金仓默认端口
-    database: 'test',       // 数据库名
-    user: 'system',         // 用户名
-    password: '123456',     // 你的密码
+    host: config.db.host,      // 你的数据库地址
+    port: config.db.port,            // 金仓默认端口
+    database: config.db.database,       // 数据库名
+    user: config.db.user,         // 用户名
+    password: config.db.password,     // 你的密码
 });
 
 // 连接数据库
