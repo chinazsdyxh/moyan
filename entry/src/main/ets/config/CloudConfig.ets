@@ -7,6 +7,7 @@ export interface CloudConfig {
   iotdaAppEndpoint: string;
   projectId: string;
   deviceId: string;
+  assistantApiBaseUrl: string;
   serviceId: string;
   lightCommandName: string;
   modeCommandName: string;
@@ -22,6 +23,7 @@ export const cloudConfig: CloudConfig = {
   iotdaAppEndpoint: 'https://f89d6f04a4.st1.iotda-app.cn-north-4.myhuaweicloud.com:443',
   projectId: '1af62592905f4c729efe3050786c31fb',
   deviceId: '6a3a6e13cbb0cf6bb96829d9_roomone',
+  assistantApiBaseUrl: 'http://172.22.41.63:3001/api/v1',
   serviceId: 'smartRoom',
   lightCommandName: 'Light',
   modeCommandName: 'CtlMode',
@@ -66,6 +68,23 @@ export function buildDeviceShadowUrl(): string {
 export function buildCommandUrl(): string {
   const endpoint = trimTrailingSlash(cloudConfig.iotdaAppEndpoint);
   return `${endpoint}/v5/iot/${cloudConfig.projectId}/devices/${cloudConfig.deviceId}/commands`;
+}
+
+export function buildAssistantChatUrl(): string {
+  const endpoint = trimTrailingSlash(cloudConfig.assistantApiBaseUrl);
+  return `${endpoint}/assistant/chat`;
+}
+
+export function buildAssistantConfirmUrl(): string {
+  const endpoint = trimTrailingSlash(cloudConfig.assistantApiBaseUrl);
+  return `${endpoint}/assistant/confirm`;
+}
+
+export function isAssistantCloudConfigComplete(): boolean {
+  return !!(
+    cloudConfig.assistantApiBaseUrl &&
+    cloudConfig.deviceId
+  );
 }
 
 export function isDisplayCloudConfigComplete(): boolean {
