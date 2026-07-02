@@ -256,7 +256,7 @@ button { color: inherit; }
   .app-shell { display: block; }
   .sidebar { position: fixed; right: 12px; bottom: 12px; left: 12px; top: auto; z-index: 20; width: auto; height: 62px; display: block; padding: 7px; border: 1px solid var(--line); border-radius: 15px; background: rgba(6, 17, 28, .94); backdrop-filter: blur(18px); }
   .brand-mark, .sidebar__system-card, .side-nav__caption { display: none; }
-  .side-nav { height: 100%; display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .side-nav { height: 100%; display: grid; grid-template-columns: 1fr; gap: 3px; }
   .side-nav__item { height: 46px; }
   .side-nav__item.active::before { right: 30%; bottom: -6px; left: 30%; width: auto; height: 2px; }
   .main-stage { padding: 20px 14px 92px; }

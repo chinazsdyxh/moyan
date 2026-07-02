@@ -5,26 +5,20 @@ import type { DeviceShadowSnapshot, RealtimeEvent } from '@moyan/contracts';
 import {
   Activity,
   BatteryCharging,
-  BellRing,
-  Box,
   ChevronRight,
   CircleDot,
   Cloud,
   Cpu,
   Droplets,
   Gauge,
-  History,
   LayoutDashboard,
   Lightbulb,
   Radio,
   RefreshCw,
   Ruler,
-  Settings,
   ShieldCheck,
   Sparkles,
-  SquareTerminal,
   Thermometer,
-  Video,
   Wifi
 } from 'lucide-react';
 import { AssistantPanel } from './components/AssistantPanel';
@@ -179,13 +173,6 @@ function Dashboard() {
         <nav className="side-nav" aria-label="主导航">
           <span className="side-nav__caption">SPACE</span>
           <button className="side-nav__item active"><LayoutDashboard size={18} /><span>空间总览</span><i /></button>
-          <button className="side-nav__item"><Box size={18} /><span>设备矩阵</span></button>
-          <button className="side-nav__item"><Video size={18} /><span>视觉监控</span><em>1</em></button>
-          <button className="side-nav__item"><History size={18} /><span>历史轨迹</span></button>
-          <span className="side-nav__caption">SYSTEM</span>
-          <button className="side-nav__item"><BellRing size={18} /><span>告警中心</span></button>
-          <button className="side-nav__item"><SquareTerminal size={18} /><span>链路诊断</span></button>
-          <button className="side-nav__item"><Settings size={18} /><span>系统配置</span></button>
         </nav>
 
         <div className="sidebar__system-card">
