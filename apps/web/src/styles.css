@@ -177,11 +177,6 @@ button { color: inherit; }
 .control-block .ant-segmented { padding: 4px; border: 1px solid rgba(91, 137, 157, .13); }
 .control-block .ant-segmented-item { color: #6d8999; font-size: 10px; }
 .control-block .ant-segmented-item-selected { color: #e8fbff; box-shadow: none; }
-.desired-block { padding-top: 18px; border-top: 1px solid rgba(103, 150, 171, .1); }
-.desired-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-.desired-row .ant-input-number { width: 100%; background: #091a26; border-color: rgba(100, 145, 164, .19); }
-.desired-row .ant-btn-primary { color: #06131f; font-size: 10px; font-weight: 700; }
-.desired-block small { display: block; margin-top: 8px; color: #466576; font-size: 8px; line-height: 1.5; }
 .control-panel__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 14px 18px 16px; color: #456373; font-size: 8px; }
 .control-panel__foot span { display: flex; align-items: center; gap: 5px; }
 .control-panel__foot svg { color: var(--green); }

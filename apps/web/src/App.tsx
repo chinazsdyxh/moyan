@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { App as AntdApp, Button, ConfigProvider, InputNumber, Segmented, Select, Tooltip } from 'antd';
+import { App as AntdApp, Button, ConfigProvider, Segmented, Select, Tooltip } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { DeviceShadowSnapshot, RealtimeEvent } from '@moyan/contracts';
 import {
@@ -55,7 +55,6 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
   const [history, setHistory] = useState<TrendPoint[]>([]);
-  const [threshold, setThreshold] = useState<number | null>(28);
   const [streamState, setStreamState] = useState<'connecting' | 'live' | 'offline'>('connecting');
 
   const healthQuery = useQuery({ queryKey: ['health'], queryFn: api.health, refetchInterval: 15_000 });
@@ -125,19 +124,6 @@ function Dashboard() {
         queryClient.invalidateQueries({ queryKey: ['shadow', selectedDeviceId] }),
         queryClient.invalidateQueries({ queryKey: ['logs', selectedDeviceId] })
       ]);
-    },
-    onError: (error) => message.error(error.message)
-  });
-
-  const desiredMutation = useMutation({
-    mutationFn: () => api.updateDesired(selectedDeviceId, {
-      serviceId: shadow?.serviceId,
-      desired: { threshold: threshold ?? 28 },
-      version: shadow?.version ?? undefined
-    }),
-    onSuccess: (result) => {
-      queryClient.setQueryData(['shadow', selectedDeviceId], result);
-      message.success('设备影子期望阈值已更新');
     },
     onError: (error) => message.error(error.message)
   });
@@ -271,15 +257,6 @@ function Dashboard() {
                 ]}
                 onChange={(mode) => commandMutation.mutate({ type: 'MODE', value: String(mode) })}
               />
-            </div>
-
-            <div className="control-block desired-block">
-              <label>温度预警阈值 <span>写入 desired</span></label>
-              <div className="desired-row">
-                <InputNumber min={16} max={40} step={0.5} value={threshold} onChange={setThreshold} suffix="°C" />
-                <Button type="primary" loading={desiredMutation.isPending} onClick={() => desiredMutation.mutate()}>同步影子</Button>
-              </div>
-              <small>真实设备需要在产品模型中定义可写属性 threshold。</small>
             </div>
 
             <AssistantPanel
