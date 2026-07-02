@@ -13,7 +13,8 @@
     "dev:web": "npm run dev -w @moyan/web",
     "build": "npm run build -w @moyan/contracts && npm run build -w @moyan/api && npm run build -w @moyan/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "coverage": "npm run coverage --workspaces --if-present"
   },
   "devDependencies": {
     "concurrently": "latest",

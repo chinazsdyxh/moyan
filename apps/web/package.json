@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -p tsconfig.app.json && vite build",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "coverage": "vitest run --coverage --passWithNoTests"
   },
   "dependencies": {
     "@ant-design/icons": "latest",
@@ -27,6 +28,7 @@
     "@types/react-dom": "latest",
     "@types/three": "latest",
     "@vitejs/plugin-react": "latest",
+    "@vitest/coverage-v8": "^4.1.9",
     "vite": "latest",
     "vitest": "latest"
   }
