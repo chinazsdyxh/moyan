@@ -1,14 +1,5 @@
-import { randomUUID } from 'node:crypto';
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
-import type { ApiProblem, ApiResponse, HealthStatus, RealtimeEvent } from '@moyan/contracts';
-import Fastify, { type FastifyRequest } from 'fastify';
-import { z, ZodError } from 'zod';
-import { config, isHuaweiCloudConfigured } from './config.js';
-import { HuaweiCloudProvider } from './providers/huaweicloud-provider.js';
-import { MockDeviceProvider } from './providers/mock-provider.js';
-import { ProviderError } from './providers/provider.js';
-import { DeviceService } from './services/device-service.js';
+import { config } from './config.js';
+import { buildApp } from './app.js';
 
 
 //-----------------------------------数据库测试修改起始--------------------------------
@@ -341,9 +332,11 @@ app.setErrorHandler((error, request, reply) => {
   return reply.code(status).type('application/problem+json').send(problem);
 });
 
+
 try {
   await app.listen({ host: '0.0.0.0', port: config.port });
 } catch (error) {
   app.log.error(error);
   process.exit(1);
 }
+

@@ -1,32 +1,27 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { App as AntdApp, Button, ConfigProvider, InputNumber, Segmented, Select, Tooltip } from 'antd';
+import { App as AntdApp, Button, ConfigProvider, Segmented, Select, Tooltip } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { DeviceShadowSnapshot, RealtimeEvent } from '@moyan/contracts';
 import {
   Activity,
   BatteryCharging,
-  BellRing,
-  Box,
   ChevronRight,
   CircleDot,
   Cloud,
   Cpu,
   Droplets,
   Gauge,
-  History,
   LayoutDashboard,
   Lightbulb,
   Radio,
   RefreshCw,
   Ruler,
-  Settings,
   ShieldCheck,
   Sparkles,
-  SquareTerminal,
   Thermometer,
-  Video,
   Wifi
 } from 'lucide-react';
+import { AssistantPanel } from './components/AssistantPanel';
 import { MetricCard } from './components/MetricCard';
 import type { TrendPoint } from './components/TrendChart';
 import { api } from './lib/api';
@@ -60,7 +55,6 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const [selectedDeviceId, setSelectedDeviceId] = useState('');
   const [history, setHistory] = useState<TrendPoint[]>([]);
-  const [threshold, setThreshold] = useState<number | null>(28);
   const [streamState, setStreamState] = useState<'connecting' | 'live' | 'offline'>('connecting');
 
   const healthQuery = useQuery({ queryKey: ['health'], queryFn: api.health, refetchInterval: 15_000 });
@@ -134,18 +128,12 @@ function Dashboard() {
     onError: (error) => message.error(error.message)
   });
 
-  const desiredMutation = useMutation({
-    mutationFn: () => api.updateDesired(selectedDeviceId, {
-      serviceId: shadow?.serviceId,
-      desired: { threshold: threshold ?? 28 },
-      version: shadow?.version ?? undefined
-    }),
-    onSuccess: (result) => {
-      queryClient.setQueryData(['shadow', selectedDeviceId], result);
-      message.success('设备影子期望阈值已更新');
-    },
-    onError: (error) => message.error(error.message)
-  });
+  const refreshDeviceActivity = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['shadow', selectedDeviceId] }),
+      queryClient.invalidateQueries({ queryKey: ['logs', selectedDeviceId] })
+    ]);
+  };
 
   const selectedDevice = deviceList.find((device) => device.deviceId === selectedDeviceId);
   const provider = healthQuery.data?.data.provider ?? 'mock';
@@ -171,13 +159,6 @@ function Dashboard() {
         <nav className="side-nav" aria-label="主导航">
           <span className="side-nav__caption">SPACE</span>
           <button className="side-nav__item active"><LayoutDashboard size={18} /><span>空间总览</span><i /></button>
-          <button className="side-nav__item"><Box size={18} /><span>设备矩阵</span></button>
-          <button className="side-nav__item"><Video size={18} /><span>视觉监控</span><em>1</em></button>
-          <button className="side-nav__item"><History size={18} /><span>历史轨迹</span></button>
-          <span className="side-nav__caption">SYSTEM</span>
-          <button className="side-nav__item"><BellRing size={18} /><span>告警中心</span></button>
-          <button className="side-nav__item"><SquareTerminal size={18} /><span>链路诊断</span></button>
-          <button className="side-nav__item"><Settings size={18} /><span>系统配置</span></button>
         </nav>
 
         <div className="sidebar__system-card">
@@ -278,14 +259,11 @@ function Dashboard() {
               />
             </div>
 
-            <div className="control-block desired-block">
-              <label>温度预警阈值 <span>写入 desired</span></label>
-              <div className="desired-row">
-                <InputNumber min={16} max={40} step={0.5} value={threshold} onChange={setThreshold} suffix="°C" />
-                <Button type="primary" loading={desiredMutation.isPending} onClick={() => desiredMutation.mutate()}>同步影子</Button>
-              </div>
-              <small>真实设备需要在产品模型中定义可写属性 threshold。</small>
-            </div>
+            <AssistantPanel
+              deviceId={selectedDeviceId}
+              metrics={metrics}
+              onCommandConfirmed={refreshDeviceActivity}
+            />
 
             <div className="control-panel__foot">
               <span><CircleDot size={13} />命令经服务端代理</span><span>最近响应 {timeText(shadow?.observedAt)}</span>

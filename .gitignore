@@ -6,10 +6,14 @@
 /.env
 /.env.*
 !/.env.example
+/.codex
 /apps/*/.env
 /apps/*/.env.*
 !/apps/*/.env.example
 /coverage
+/apps/*/coverage
+/packages/*/coverage
+**/.dev-server*.log
 /oh_modules
 /local.properties
 /.idea

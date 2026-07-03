@@ -5,9 +5,12 @@ import promptAction from '@ohos.promptAction';
 import router from '@ohos.router';
 import {
   buildAuthRequestBody,
+  buildAssistantChatUrl,
+  buildAssistantConfirmUrl,
   buildCommandUrl,
   buildDeviceShadowUrl,
   cloudConfig,
+  isAssistantCloudConfigComplete,
   isDisplayCloudConfigComplete,
   isLightCommandCloudConfigComplete,
   isModeCommandCloudConfigComplete,
@@ -56,9 +59,49 @@ interface DeviceShadowResponse {
   shadow: SmartRoomShadow[];
 }
 
+interface AssistantDeviceState {
+  Temp: number | null;
+  Humi: number | null;
+  Lumi: number | null;
+  Dist: number | null;
+  LampST: string;
+  CtlMode: string;
+}
+
+interface AssistantChatRequest {
+  userId: string;
+  deviceId: string;
+  message: string;
+  deviceState: AssistantDeviceState;
+}
+
+interface AssistantPendingAction {
+  deviceId: string;
+  action: string;
+  value: string;
+  confirmQuestion: string;
+}
+
+interface AssistantChatResponse {
+  replyText: string;
+  pendingAction?: AssistantPendingAction | null;
+}
+
+interface AssistantConfirmRequest {
+  deviceId: string;
+  action: string;
+  value: string;
+}
+
+interface AssistantConfirmResponse {
+  ok: boolean;
+  replyText: string;
+}
+
 let aToken = '';
 let fetchTimer = 0;
 const MODE_CONFIRM_TIMEOUT_MS = 6000;
+const ASSISTANT_USER_ID = 'harmony_operator';
 
 @Entry
 @Component
@@ -79,6 +122,14 @@ struct Display {
   @State debugResponseLength: string = '0';
   @State debugExtracted: string = '--';
   @State debugRawResponse: string = '--';
+  @State assistantInput: string = '';
+  @State assistantReplyText: string = '您好，我可以查看当前设备状态，也可以在您确认后控制灯光和模式。';
+  @State assistantPendingDeviceId: string = '';
+  @State assistantPendingActionName: string = '';
+  @State assistantPendingValue: string = '';
+  @State assistantPendingQuestion: string = '';
+  @State isAssistantChatLoading: boolean = false;
+  @State isAssistantConfirmLoading: boolean = false;
 
   aboutToAppear() {
     this.initData();
@@ -327,6 +378,185 @@ struct Display {
     }
   }
 
+  async sendAssistantMessage(message?: string) {
+    const text = (message !== undefined ? message : this.assistantInput).trim();
+    if (text === '') {
+      promptAction.showToast({ message: '请输入要询问的内容', duration: 1200 });
+      return;
+    }
+    if (!isAssistantCloudConfigComplete()) {
+      promptAction.showToast({ message: '请先填写后端助手地址', duration: 2000 });
+      return;
+    }
+    if (this.isAssistantChatLoading || this.isAssistantConfirmLoading) {
+      return;
+    }
+
+    this.isAssistantChatLoading = true;
+    this.clearAssistantPendingAction();
+    this.assistantInput = '';
+    try {
+      const requestBody: AssistantChatRequest = {
+        userId: ASSISTANT_USER_ID,
+        deviceId: cloudConfig.deviceId,
+        message: text,
+        deviceState: this.buildAssistantDeviceState()
+      };
+      const reqOpt: http.HttpRequestOptions = {
+        method: http.RequestMethod.POST,
+        expectDataType: http.HttpDataType.STRING,
+        header: {
+          'Content-Type': 'application/json'
+        },
+        extraData: JSON.stringify(requestBody)
+      };
+      const instance = http.createHttp();
+      const res = await instance.request(buildAssistantChatUrl(), reqOpt);
+      const responseText = typeof res.result === 'string' ? res.result : JSON.stringify(res.result);
+      if (res.responseCode < 200 || res.responseCode >= 300) {
+        this.assistantReplyText = '助手请求失败: ' + res.responseCode;
+        console.error('Assistant chat failed:', res.responseCode, responseText);
+        return;
+      }
+
+      const result = JSON.parse(responseText) as AssistantChatResponse;
+      this.assistantReplyText = result.replyText || '助手已响应，但没有返回文本。';
+      this.setAssistantPendingAction(result.pendingAction);
+    } catch (error) {
+      console.error('Assistant chat request failed:', error);
+      this.assistantReplyText = '助手请求失败，请检查后端服务是否已启动。';
+    } finally {
+      this.isAssistantChatLoading = false;
+    }
+  }
+
+  async confirmAssistantAction() {
+    if (this.assistantPendingActionName === '') {
+      return;
+    }
+    if (this.isAssistantConfirmLoading || this.isAssistantChatLoading) {
+      return;
+    }
+
+    const action: AssistantPendingAction = {
+      deviceId: this.assistantPendingDeviceId,
+      action: this.assistantPendingActionName,
+      value: this.assistantPendingValue,
+      confirmQuestion: this.assistantPendingQuestion
+    };
+    this.isAssistantConfirmLoading = true;
+    try {
+      const requestBody: AssistantConfirmRequest = {
+        deviceId: action.deviceId,
+        action: action.action,
+        value: action.value
+      };
+      const reqOpt: http.HttpRequestOptions = {
+        method: http.RequestMethod.POST,
+        expectDataType: http.HttpDataType.STRING,
+        header: {
+          'Content-Type': 'application/json'
+        },
+        extraData: JSON.stringify(requestBody)
+      };
+      const instance = http.createHttp();
+      const res = await instance.request(buildAssistantConfirmUrl(), reqOpt);
+      const responseText = typeof res.result === 'string' ? res.result : JSON.stringify(res.result);
+      if (res.responseCode < 200 || res.responseCode >= 300) {
+        this.assistantReplyText = '确认执行失败: ' + res.responseCode;
+        console.error('Assistant confirm failed:', res.responseCode, responseText);
+        return;
+      }
+
+      const result = JSON.parse(responseText) as AssistantConfirmResponse;
+      this.assistantReplyText = result.replyText || '命令已确认执行。';
+      this.clearAssistantPendingAction();
+      this.applyConfirmedAssistantAction(action);
+      await this.fetchDeviceData();
+    } catch (error) {
+      console.error('Assistant confirm request failed:', error);
+      this.assistantReplyText = '确认执行失败，请稍后重试。';
+    } finally {
+      this.isAssistantConfirmLoading = false;
+    }
+  }
+
+  cancelAssistantAction() {
+    this.clearAssistantPendingAction();
+    this.assistantReplyText = '已取消本次控制操作。';
+  }
+
+  setAssistantPendingAction(action?: AssistantPendingAction | null) {
+    if (action === undefined || action === null) {
+      this.clearAssistantPendingAction();
+      return;
+    }
+    this.assistantPendingDeviceId = action.deviceId;
+    this.assistantPendingActionName = action.action;
+    this.assistantPendingValue = action.value;
+    this.assistantPendingQuestion = action.confirmQuestion;
+  }
+
+  clearAssistantPendingAction() {
+    this.assistantPendingDeviceId = '';
+    this.assistantPendingActionName = '';
+    this.assistantPendingValue = '';
+    this.assistantPendingQuestion = '';
+  }
+
+  buildAssistantDeviceState(): AssistantDeviceState {
+    return {
+      Temp: this.parseNullableNumber(this.temp),
+      Humi: this.parseNullableNumber(this.humi),
+      Lumi: this.parseNullableNumber(this.lumi),
+      Dist: this.parseDistance(this.dist),
+      LampST: this.normalizeLampState(this.lampst),
+      CtlMode: this.normalizeMode(this.ctlMode)
+    };
+  }
+
+  parseNullableNumber(value: string): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  parseDistance(value: string): number | null {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return null;
+    }
+    return parsed;
+  }
+
+  normalizeLampState(value: string): string {
+    if (value === '1' || value === 'ON') {
+      return 'ON';
+    }
+    if (value === '0' || value === 'OFF') {
+      return 'OFF';
+    }
+    return 'UNKNOWN';
+  }
+
+  normalizeMode(value: string): string {
+    if (value === 'AUTO' || value === 'HUMAN' || value === 'VOICE') {
+      return value;
+    }
+    return 'UNKNOWN';
+  }
+
+  applyConfirmedAssistantAction(action: AssistantPendingAction) {
+    if (action.action === 'Light') {
+      this.lampst = action.value;
+    }
+    if (action.action === 'CtlMode') {
+      this.pendingMode = action.value;
+      this.pendingModeSince = Date.now();
+      this.ctlMode = action.value;
+      this.isModeLoading = true;
+    }
+  }
+
   getModeText(mode: string): string {
     if (mode === 'AUTO') {
       return '自动';
@@ -486,6 +716,110 @@ struct Display {
     .width('90%')
   }
 
+  @Builder
+  AssistantPanel() {
+    Column({ space: 10 }) {
+      Text('文字助手')
+        .fontSize(18)
+        .fontWeight(FontWeight.Medium)
+        .width('90%')
+
+      Text(this.assistantReplyText)
+        .fontSize(14)
+        .fontColor('#333333')
+        .width('90%')
+        .padding(12)
+        .backgroundColor('#F6F8FA')
+        .borderRadius(8)
+
+      if (this.assistantPendingActionName !== '') {
+        Column({ space: 8 }) {
+          Text(this.assistantPendingQuestion)
+            .fontSize(14)
+            .fontColor('#333333')
+            .width('100%')
+          Text('确认后才会通过后端下发设备命令。')
+            .fontSize(12)
+            .fontColor(Color.Gray)
+            .width('100%')
+          Row({ space: 8 }) {
+            Button(this.isAssistantConfirmLoading ? '执行中' : '确认执行')
+              .fontSize(14)
+              .backgroundColor('#1E66FF')
+              .fontColor(Color.White)
+              .enabled(!this.isAssistantConfirmLoading)
+              .onClick(() => {
+                this.confirmAssistantAction();
+              })
+            Button('取消')
+              .fontSize(14)
+              .backgroundColor('#F0F0F0')
+              .fontColor(Color.Black)
+              .onClick(() => {
+                this.cancelAssistantAction();
+              })
+          }
+        }
+        .width('90%')
+        .padding(12)
+        .backgroundColor('#FFF7E6')
+        .borderRadius(8)
+      }
+
+      Row({ space: 8 }) {
+        Button('查看状态')
+          .fontSize(12)
+          .backgroundColor('#F0F0F0')
+          .fontColor(Color.Black)
+          .onClick(() => {
+            this.sendAssistantMessage('查看当前状态');
+          })
+        Button('开灯')
+          .fontSize(12)
+          .backgroundColor('#F0F0F0')
+          .fontColor(Color.Black)
+          .onClick(() => {
+            this.sendAssistantMessage('开灯');
+          })
+        Button('关灯')
+          .fontSize(12)
+          .backgroundColor('#F0F0F0')
+          .fontColor(Color.Black)
+          .onClick(() => {
+            this.sendAssistantMessage('关灯');
+          })
+        Button('自动模式')
+          .fontSize(12)
+          .backgroundColor('#F0F0F0')
+          .fontColor(Color.Black)
+          .onClick(() => {
+            this.sendAssistantMessage('切换到自动模式');
+          })
+      }
+      .width('90%')
+
+      Row({ space: 8 }) {
+        TextInput({ placeholder: '输入：现在家里怎么样？', text: this.assistantInput })
+          .fontSize(14)
+          .height(42)
+          .layoutWeight(1)
+          .onChange((value: string) => {
+            this.assistantInput = value;
+          })
+        Button(this.isAssistantChatLoading ? '发送中' : '发送')
+          .fontSize(14)
+          .backgroundColor('#1E66FF')
+          .fontColor(Color.White)
+          .enabled(!this.isAssistantChatLoading && !this.isAssistantConfirmLoading)
+          .onClick(() => {
+            this.sendAssistantMessage();
+          })
+      }
+      .width('90%')
+    }
+    .width('100%')
+  }
+
   build() {
     Scroll() {
       Column({ space: 18 }) {
@@ -556,6 +890,8 @@ struct Display {
           .onClick(() => {
             router.pushUrl({ url: 'pages/PhoneCameraPage' });
           })
+
+        this.AssistantPanel()
 
         Text('调试信息')
           .fontSize(14)
