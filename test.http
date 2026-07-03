@@ -1,0 +1,26 @@
+// 此文件用于对数据库操作的测试
+
+### 查询所有用户
+GET http://localhost:3001/api/v1/users
+
+### 查询单个用户
+GET http://localhost:3001/api/v1/users/1
+
+### 新增用户
+POST http://localhost:3001/api/v1/users
+Content-Type: application/json
+
+{
+    "name": "测试用户"
+}
+
+### 更新用户
+PUT http://localhost:3001/api/v1/users/1
+Content-Type: application/json
+
+{
+    "name": "新名字"
+}
+
+### 删除用户
+DELETE http://localhost:3001/api/v1/users/1
