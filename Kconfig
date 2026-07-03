@@ -1,0 +1,23 @@
+# 版权所有 (c) 2025 沈阳市网联通信规划设计有限公司
+# 作者：程国辉 刘艳
+# 修改：张天健 (Zhang Tianjian), 2026.07
+# 经原作者许可发布。
+# SPDX-License-Identifier: Apache-2.0
+
+config UART_RX
+    int
+    prompt "set the UART RX pin."
+    default 7
+    depends on ENABLE_HUAWEIIOT
+
+config UART_TX
+    int
+    prompt "set the UART TX pin."
+    default 8
+    depends on ENABLE_HUAWEIIOT
+
+config LDR_ADC_CHANNEL
+    int
+    prompt "set the ldr."
+    default 5
+    depends on ENABLE_HUAWEIIOT
