@@ -18,7 +18,16 @@ const configSchema = z.object({
   HUAWEICLOUD_IAM_USERNAME: z.string().optional(),
   HUAWEICLOUD_IAM_PASSWORD: z.string().optional(),
   HUAWEICLOUD_IAM_DOMAIN: z.string().optional(),
-  HUAWEICLOUD_IAM_PROJECT: z.string().default('cn-north-4')
+  HUAWEICLOUD_IAM_PROJECT: z.string().default('cn-north-4'),
+
+
+  //--------数据库配置----------
+  DB_HOST: z.string().default('127.0.0.1'),
+  DB_PORT: z.coerce.number().default(54321),
+  DB_DATABASE: z.string().default('test'),
+  DB_USER: z.string().default('system'),
+  DB_PASSWORD: z.string().default('123456'),
+
 });
 
 const parsed = configSchema.parse(process.env);
@@ -46,7 +55,17 @@ export const config = {
     password: parsed.HUAWEICLOUD_IAM_PASSWORD,
     domain: parsed.HUAWEICLOUD_IAM_DOMAIN,
     project: parsed.HUAWEICLOUD_IAM_PROJECT
+  },
+
+  //-------------数据库配置--------------
+  db: {
+    host: parsed.DB_HOST,
+    port: parsed.DB_PORT,
+    database: parsed.DB_DATABASE,
+    user: parsed.DB_USER,
+    password: parsed.DB_PASSWORD,
   }
+
 } as const;
 
 export function isHuaweiCloudConfigured(): boolean {
