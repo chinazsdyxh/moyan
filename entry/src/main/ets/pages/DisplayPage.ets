@@ -586,332 +586,390 @@ struct Display {
 
   @Builder
   DeviceDataRows() {
-    Row() {
-      Text('温度:')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width(90)
-      Text(this.temp + '°C')
-        .fontSize(18)
-        .fontColor(Color.Blue)
-        .flexGrow(1)
-    }
-    .justifyContent(FlexAlign.Start)
-    .width('90%')
+    Column({ space: 12 }) {
+      Row({ space: 12 }) {
+        Column({ space: 6 }) {
+          Text('温度')
+            .fontSize(19)
+            .fontColor('#4B5563')
+          Text(this.temp + '°C')
+            .fontSize(30)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#1D4ED8')
+        }
+        .layoutWeight(1)
+        .height(96)
+        .padding(14)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('#EFF6FF')
+        .borderRadius(8)
 
-    Row() {
-      Text('湿度:')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width(90)
-      Text(this.humi + '%')
-        .fontSize(18)
-        .fontColor(Color.Green)
-        .flexGrow(1)
-    }
-    .justifyContent(FlexAlign.Start)
-    .width('90%')
+        Column({ space: 6 }) {
+          Text('湿度')
+            .fontSize(19)
+            .fontColor('#4B5563')
+          Text(this.humi + '%')
+            .fontSize(30)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#047857')
+        }
+        .layoutWeight(1)
+        .height(96)
+        .padding(14)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('#ECFDF5')
+        .borderRadius(8)
+      }
+      .width('100%')
 
-    Row() {
-      Text('光照:')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width(90)
-      Text(this.lumi)
-        .fontSize(18)
-        .fontColor(Color.Orange)
-        .flexGrow(1)
-    }
-    .justifyContent(FlexAlign.Start)
-    .width('90%')
+      Row({ space: 12 }) {
+        Column({ space: 6 }) {
+          Text('光照')
+            .fontSize(19)
+            .fontColor('#4B5563')
+          Text(this.lumi)
+            .fontSize(28)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#B45309')
+        }
+        .layoutWeight(1)
+        .height(96)
+        .padding(14)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('#FFFBEB')
+        .borderRadius(8)
 
-    Row() {
-      Text('距离:')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width(90)
-      Text(this.dist)
-        .fontSize(18)
-        .fontColor(Color.Red)
-        .flexGrow(1)
-    }
-    .justifyContent(FlexAlign.Start)
-    .width('90%')
+        Column({ space: 6 }) {
+          Text('距离')
+            .fontSize(19)
+            .fontColor('#4B5563')
+          Text(this.dist)
+            .fontSize(28)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#B91C1C')
+        }
+        .layoutWeight(1)
+        .height(96)
+        .padding(14)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('#FEF2F2')
+        .borderRadius(8)
+      }
+      .width('100%')
 
-    Row() {
-      Text('灯状态:')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width(90)
-      Text(this.getLampText())
-        .fontSize(18)
-        .fontColor(this.isLampOn() ? Color.Green : Color.Gray)
-        .flexGrow(1)
-    }
-    .justifyContent(FlexAlign.Start)
-    .width('90%')
+      Row({ space: 12 }) {
+        Column({ space: 6 }) {
+          Text('灯光')
+            .fontSize(19)
+            .fontColor('#4B5563')
+          Text(this.getLampText())
+            .fontSize(28)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(this.isLampOn() ? '#047857' : '#6B7280')
+        }
+        .layoutWeight(1)
+        .height(92)
+        .padding(14)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor(Color.White)
+        .border({ width: 1, color: '#E5E7EB', radius: 8 })
 
-    Row() {
-      Text('控制模式:')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width(90)
-      Text(this.getModeText(this.ctlMode))
-        .fontSize(18)
-        .fontColor(Color.Blue)
-        .flexGrow(1)
+        Column({ space: 6 }) {
+          Text('模式')
+            .fontSize(19)
+            .fontColor('#4B5563')
+          Text(this.getModeText(this.ctlMode))
+            .fontSize(28)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#1D4ED8')
+        }
+        .layoutWeight(1)
+        .height(92)
+        .padding(14)
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor(Color.White)
+        .border({ width: 1, color: '#E5E7EB', radius: 8 })
+      }
+      .width('100%')
     }
-    .justifyContent(FlexAlign.Start)
-    .width('90%')
+    .width('100%')
   }
 
   @Builder
   DebugRows() {
     Row() {
       Text('Token长度:')
-        .fontSize(12)
+        .fontSize(14)
         .fontColor(Color.Gray)
         .width(90)
       Text(this.debugTokenLength)
-        .fontSize(12)
+        .fontSize(14)
         .fontColor('#333333')
         .flexGrow(1)
     }
-    .width('90%')
+    .width('100%')
 
     Row() {
       Text('响应码:')
-        .fontSize(12)
+        .fontSize(14)
         .fontColor(Color.Gray)
         .width(90)
       Text(this.debugResponseCode)
-        .fontSize(12)
+        .fontSize(14)
         .fontColor('#333333')
         .flexGrow(1)
     }
-    .width('90%')
+    .width('100%')
 
     Row() {
       Text('响应长度:')
-        .fontSize(12)
+        .fontSize(14)
         .fontColor(Color.Gray)
         .width(90)
       Text(this.debugResponseLength)
-        .fontSize(12)
+        .fontSize(14)
         .fontColor('#333333')
         .flexGrow(1)
     }
-    .width('90%')
+    .width('100%')
 
     Row() {
       Text('提取结果:')
-        .fontSize(12)
+        .fontSize(14)
         .fontColor(Color.Gray)
         .width(90)
       Text(this.debugExtracted)
-        .fontSize(12)
+        .fontSize(14)
         .fontColor('#333333')
         .flexGrow(1)
     }
-    .width('90%')
+    .width('100%')
   }
 
   @Builder
   AssistantPanel() {
-    Column({ space: 10 }) {
+    Column({ space: 14 }) {
       Text('文字助手')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-        .width('90%')
+        .fontSize(22)
+        .fontWeight(FontWeight.Bold)
+        .fontColor('#111827')
+        .width('100%')
 
       Text(this.assistantReplyText)
-        .fontSize(14)
-        .fontColor('#333333')
-        .width('90%')
-        .padding(12)
-        .backgroundColor('#F6F8FA')
+        .fontSize(18)
+        .fontColor('#1F2937')
+        .width('100%')
+        .padding(16)
+        .backgroundColor('#F8FAFC')
         .borderRadius(8)
 
       if (this.assistantPendingActionName !== '') {
-        Column({ space: 8 }) {
+        Column({ space: 12 }) {
           Text(this.assistantPendingQuestion)
-            .fontSize(14)
-            .fontColor('#333333')
+            .fontSize(18)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#111827')
             .width('100%')
           Text('确认后才会通过后端下发设备命令。')
-            .fontSize(12)
-            .fontColor(Color.Gray)
+            .fontSize(16)
+            .fontColor('#6B7280')
             .width('100%')
-          Row({ space: 8 }) {
+          Row({ space: 10 }) {
             Button(this.isAssistantConfirmLoading ? '执行中' : '确认执行')
-              .fontSize(14)
-              .backgroundColor('#1E66FF')
+              .height(52)
+              .layoutWeight(1)
+              .fontSize(18)
+              .backgroundColor('#2563EB')
               .fontColor(Color.White)
               .enabled(!this.isAssistantConfirmLoading)
               .onClick(() => {
                 this.confirmAssistantAction();
               })
             Button('取消')
-              .fontSize(14)
-              .backgroundColor('#F0F0F0')
-              .fontColor(Color.Black)
+              .height(52)
+              .layoutWeight(1)
+              .fontSize(18)
+              .backgroundColor('#E5E7EB')
+              .fontColor('#111827')
               .onClick(() => {
                 this.cancelAssistantAction();
               })
           }
+          .width('100%')
         }
-        .width('90%')
-        .padding(12)
+        .width('100%')
+        .padding(16)
         .backgroundColor('#FFF7E6')
         .borderRadius(8)
       }
 
-      Row({ space: 8 }) {
+      Row({ space: 10 }) {
         Button('查看状态')
-          .fontSize(12)
-          .backgroundColor('#F0F0F0')
-          .fontColor(Color.Black)
+          .height(50)
+          .layoutWeight(1)
+          .fontSize(17)
+          .backgroundColor('#E5E7EB')
+          .fontColor('#111827')
           .onClick(() => {
             this.sendAssistantMessage('查看当前状态');
           })
         Button('开灯')
-          .fontSize(12)
-          .backgroundColor('#F0F0F0')
-          .fontColor(Color.Black)
+          .height(50)
+          .layoutWeight(1)
+          .fontSize(17)
+          .backgroundColor('#E5E7EB')
+          .fontColor('#111827')
           .onClick(() => {
             this.sendAssistantMessage('开灯');
           })
         Button('关灯')
-          .fontSize(12)
-          .backgroundColor('#F0F0F0')
-          .fontColor(Color.Black)
+          .height(50)
+          .layoutWeight(1)
+          .fontSize(17)
+          .backgroundColor('#E5E7EB')
+          .fontColor('#111827')
           .onClick(() => {
             this.sendAssistantMessage('关灯');
           })
-        Button('自动模式')
-          .fontSize(12)
-          .backgroundColor('#F0F0F0')
-          .fontColor(Color.Black)
-          .onClick(() => {
-            this.sendAssistantMessage('切换到自动模式');
-          })
       }
-      .width('90%')
+      .width('100%')
 
       Row({ space: 8 }) {
         TextInput({ placeholder: '输入：现在家里怎么样？', text: this.assistantInput })
-          .fontSize(14)
-          .height(42)
+          .fontSize(18)
+          .height(54)
           .layoutWeight(1)
+          .padding({ left: 12, right: 12 })
+          .border({ width: 1, color: '#CBD5E1', radius: 8 })
           .onChange((value: string) => {
             this.assistantInput = value;
           })
         Button(this.isAssistantChatLoading ? '发送中' : '发送')
-          .fontSize(14)
-          .backgroundColor('#1E66FF')
+          .width(88)
+          .height(54)
+          .fontSize(18)
+          .backgroundColor('#2563EB')
           .fontColor(Color.White)
           .enabled(!this.isAssistantChatLoading && !this.isAssistantConfirmLoading)
           .onClick(() => {
             this.sendAssistantMessage();
           })
       }
-      .width('90%')
+      .width('100%')
     }
     .width('100%')
+    .padding(18)
+    .backgroundColor(Color.White)
+    .border({ width: 1, color: '#E5E7EB', radius: 8 })
   }
 
   build() {
     Scroll() {
       Column({ space: 18 }) {
-        Text('设备属性监控')
-          .fontSize(24)
+        Text('家中设备状态')
+          .fontSize(30)
           .fontWeight(FontWeight.Bold)
-          .margin({ top: 20 })
+          .fontColor('#111827')
+          .width('100%')
+          .margin({ top: 16 })
 
         Text(this.statusMessage)
-          .fontSize(14)
-          .fontColor(Color.Gray)
-          .width('90%')
+          .fontSize(18)
+          .fontColor('#4B5563')
+          .width('100%')
+          .padding(14)
+          .backgroundColor('#F8FAFC')
+          .borderRadius(8)
 
         this.DeviceDataRows()
 
-        Row({ space: 8 }) {
-          Button('自动')
-            .fontSize(14)
-            .backgroundColor(this.ctlMode === 'AUTO' ? Color.Blue : '#F0F0F0')
-            .fontColor(this.ctlMode === 'AUTO' ? Color.White : Color.Black)
+        Column({ space: 14 }) {
+          Text('常用操作')
+            .fontSize(22)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#111827')
+            .width('100%')
+
+          Button(this.isLampOn() ? '关闭灯光' : '打开灯光')
+            .fontSize(22)
+            .fontWeight(FontWeight.Medium)
+            .height(60)
+            .backgroundColor(this.isLampOn() ? '#DC2626' : '#16A34A')
+            .fontColor(Color.White)
+            .width('100%')
+            .enabled(!this.isLampLoading)
             .onClick(() => {
-              this.controlMode('AUTO');
+              this.controlLamp(this.isLampOn() ? 'OFF' : 'ON');
             })
-          Button('人工')
-            .fontSize(14)
-            .backgroundColor(this.ctlMode === 'HUMAN' ? Color.Blue : '#F0F0F0')
-            .fontColor(this.ctlMode === 'HUMAN' ? Color.White : Color.Black)
-            .onClick(() => {
-              this.controlMode('HUMAN');
-            })
-          Button('语音')
-            .fontSize(14)
-            .backgroundColor(this.ctlMode === 'VOICE' ? Color.Blue : '#F0F0F0')
-            .fontColor(this.ctlMode === 'VOICE' ? Color.White : Color.Black)
-            .onClick(() => {
-              this.controlMode('VOICE');
-            })
+
+          Row({ space: 10 }) {
+            Button('自动')
+              .height(56)
+              .layoutWeight(1)
+              .fontSize(18)
+              .backgroundColor(this.ctlMode === 'AUTO' ? '#2563EB' : '#E5E7EB')
+              .fontColor(this.ctlMode === 'AUTO' ? Color.White : '#111827')
+              .onClick(() => {
+                this.controlMode('AUTO');
+              })
+            Button('人工')
+              .height(56)
+              .layoutWeight(1)
+              .fontSize(18)
+              .backgroundColor(this.ctlMode === 'HUMAN' ? '#2563EB' : '#E5E7EB')
+              .fontColor(this.ctlMode === 'HUMAN' ? Color.White : '#111827')
+              .onClick(() => {
+                this.controlMode('HUMAN');
+              })
+            Button('语音')
+              .height(56)
+              .layoutWeight(1)
+              .fontSize(18)
+              .backgroundColor(this.ctlMode === 'VOICE' ? '#2563EB' : '#E5E7EB')
+              .fontColor(this.ctlMode === 'VOICE' ? Color.White : '#111827')
+              .onClick(() => {
+                this.controlMode('VOICE');
+              })
+          }
+          .width('100%')
+
+          Row({ space: 10 }) {
+            Button('视频监控')
+              .height(56)
+              .layoutWeight(1)
+              .fontSize(18)
+              .fontWeight(FontWeight.Medium)
+              .backgroundColor('#2563EB')
+              .fontColor(Color.White)
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/monitor' });
+              })
+
+            Button('本机摄像头')
+              .height(56)
+              .layoutWeight(1)
+              .fontSize(18)
+              .fontWeight(FontWeight.Medium)
+              .backgroundColor('#374151')
+              .fontColor(Color.White)
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/PhoneCameraPage' });
+              })
+          }
+          .width('100%')
         }
-        .width('90%')
-
-        Button(this.isLampOn() ? '关闭灯' : '开启灯')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .backgroundColor(this.isLampOn() ? Color.Red : Color.Green)
-          .fontColor(Color.White)
-          .width(120)
-          .enabled(!this.isLampLoading)
-          .onClick(() => {
-            this.controlLamp(this.isLampOn() ? 'OFF' : 'ON');
-          })
-
-        Button('视频监控')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .backgroundColor('#1E66FF')
-          .fontColor(Color.White)
-          .width(140)
-          .onClick(() => {
-            router.pushUrl({ url: 'pages/monitor' });
-          })
-
-        Button('本机摄像头')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .backgroundColor('#444444')
-          .fontColor(Color.White)
-          .width(140)
-          .onClick(() => {
-            router.pushUrl({ url: 'pages/PhoneCameraPage' });
-          })
+        .width('100%')
+        .padding(18)
+        .backgroundColor(Color.White)
+        .border({ width: 1, color: '#E5E7EB', radius: 8 })
 
         this.AssistantPanel()
-
-        Text('调试信息')
-          .fontSize(14)
-          .fontWeight(FontWeight.Medium)
-          .fontColor('#333333')
-          .width('90%')
-          .margin({ top: 8 })
-        this.DebugRows()
-        Text(this.debugRawResponse)
-          .fontSize(11)
-          .fontColor(Color.Gray)
-          .width('90%')
-          .maxLines(8)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
       }
       .width('100%')
-      .padding(20)
+      .padding({ left: 18, right: 18, bottom: 28 })
     }
     .width('100%')
     .height('100%')
-    .backgroundColor(Color.White)
+    .backgroundColor('#F3F4F6')
   }
 }

@@ -74,7 +74,7 @@ struct VideoStreamPage {
 
       await this.tcpSocket.connect(connectOptions);
       this.isConnected = true;
-      this.statusMessage = '已连接，等待视频帧';
+      this.statusMessage = '已连接，等待视频画面';
       this.addLog('连接成功');
       this.startFpsTimer();
       this.startReceivingData();
@@ -140,7 +140,7 @@ struct VideoStreamPage {
       this.buffer = this.buffer.slice(endMarker + 2);
       this.bufferSizeKb = Math.round(this.buffer.length / 1024);
       if (this.frameCount > 0 && this.frameCount % 10 === 0) {
-        this.addLog('已显示帧 ' + this.frameCount + '，最近帧 ' + this.lastFrameSizeKb + 'KB，缓冲 ' +
+        this.addLog('已显示 ' + this.frameCount + ' 帧，最近帧 ' + this.lastFrameSizeKb + 'KB，缓冲 ' +
           this.bufferSizeKb + 'KB');
       }
     } catch (error) {
@@ -253,72 +253,86 @@ struct VideoStreamPage {
     Scroll() {
       Column({ space: 18 }) {
         Row() {
-          Button('<')
-            .width(44)
-            .height(44)
-            .backgroundColor(Color.Transparent)
-            .fontColor('#1E66FF')
-            .fontSize(22)
+          Button('返回')
+            .width(72)
+            .height(48)
+            .backgroundColor('#E5E7EB')
+            .fontColor('#111827')
+            .fontSize(18)
             .onClick(() => {
               this.goBack();
             })
 
-          Text('ESP32 摄像头')
-            .fontSize(24)
+          Text('视频监控')
+            .fontSize(28)
             .fontWeight(FontWeight.Bold)
+            .fontColor('#111827')
             .textAlign(TextAlign.Center)
             .flexGrow(1)
 
           Blank()
-            .width(44)
+            .width(72)
         }
         .width('100%')
         .margin({ top: 12 })
 
         Text(this.statusMessage)
-          .fontSize(14)
-          .fontColor(this.isConnected ? Color.Green : Color.Gray)
-          .width('90%')
+          .fontSize(18)
+          .fontColor(this.isConnected ? '#047857' : '#4B5563')
+          .width('100%')
+          .padding(14)
+          .backgroundColor('#F8FAFC')
+          .borderRadius(8)
 
-        Column({ space: 10 }) {
-          Text('IP 地址')
-            .fontSize(15)
+        Column({ space: 14 }) {
+          Text('摄像头 IP 地址')
+            .fontSize(20)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#111827')
             .width('100%')
 
           TextInput({ placeholder: '例如 192.168.43.98', text: this.ipAddress })
             .width('100%')
-            .height(46)
-            .border({ width: 1, color: '#D0D0D0', radius: 6 })
-            .padding({ left: 10, right: 10 })
+            .height(56)
+            .fontSize(18)
+            .border({ width: 1, color: '#CBD5E1', radius: 8 })
+            .padding({ left: 12, right: 12 })
             .enabled(!this.isConnected)
             .onChange((value: string) => {
               this.ipAddress = value;
             })
 
           Text('端口号')
-            .fontSize(15)
+            .fontSize(20)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#111827')
             .width('100%')
-            .margin({ top: 6 })
+            .margin({ top: 4 })
 
           TextInput({ placeholder: '8080', text: this.port })
             .width('100%')
-            .height(46)
+            .height(56)
+            .fontSize(18)
             .type(InputType.Number)
-            .border({ width: 1, color: '#D0D0D0', radius: 6 })
-            .padding({ left: 10, right: 10 })
+            .border({ width: 1, color: '#CBD5E1', radius: 8 })
+            .padding({ left: 12, right: 12 })
             .enabled(!this.isConnected)
             .onChange((value: string) => {
               this.port = value;
             })
         }
-        .width('90%')
+        .width('100%')
+        .padding(18)
         .alignItems(HorizontalAlign.Start)
+        .backgroundColor(Color.White)
+        .border({ width: 1, color: '#E5E7EB', radius: 8 })
 
         Row({ space: 12 }) {
           Button(this.isConnected ? '断开连接' : '开始连接')
-            .height(46)
+            .height(58)
             .layoutWeight(1)
-            .backgroundColor(this.isConnected ? Color.Red : Color.Blue)
+            .fontSize(20)
+            .backgroundColor(this.isConnected ? '#DC2626' : '#2563EB')
             .fontColor(Color.White)
             .onClick(() => {
               if (this.isConnected) {
@@ -328,10 +342,11 @@ struct VideoStreamPage {
               }
             })
 
-          Button('清空图像')
-            .height(46)
+          Button('清空画面')
+            .height(58)
             .layoutWeight(1)
-            .backgroundColor('#666666')
+            .fontSize(20)
+            .backgroundColor('#374151')
             .fontColor(Color.White)
             .onClick(() => {
               this.imageSrc = null;
@@ -344,51 +359,7 @@ struct VideoStreamPage {
               this.addLog('已清空图像和统计');
             })
         }
-        .width('90%')
-
-        Column({ space: 4 }) {
-          Text('调试: FPS ' + this.currentFps + ' | 缓冲 ' + this.bufferSizeKb + 'KB | 最近帧 ' +
-            this.lastFrameSizeKb + 'KB')
-            .fontSize(12)
-            .fontColor(Color.Gray)
-            .width('100%')
-          Text('状态: ' + (this.isDecoding ? '解码中' : '空闲') + ' | 数据包 ' + this.packetCount)
-            .fontSize(12)
-            .fontColor(Color.Gray)
-            .width('100%')
-        }
-        .width('90%')
-        .alignItems(HorizontalAlign.Start)
-
-        Column({ space: 6 }) {
-          Row() {
-            Text('日志')
-              .fontSize(15)
-              .fontWeight(FontWeight.Medium)
-              .flexGrow(1)
-            Button('清空日志')
-              .fontSize(12)
-              .height(30)
-              .backgroundColor('#666666')
-              .fontColor(Color.White)
-              .onClick(() => {
-                this.logs = ['日志已清空'];
-              })
-          }
-          .width('100%')
-
-          ForEach(this.logs, (item: string) => {
-            Text(item)
-              .fontSize(11)
-              .fontColor(Color.Gray)
-              .width('100%')
-          })
-        }
-        .width('90%')
-        .alignItems(HorizontalAlign.Start)
-        .padding(10)
-        .border({ width: 1, color: '#E0E0E0', radius: 6 })
-        .backgroundColor('#FAFAFA')
+        .width('100%')
 
         Stack({ alignContent: Alignment.Center }) {
           if (this.imageSrc) {
@@ -397,47 +368,71 @@ struct VideoStreamPage {
               .height('100%')
               .objectFit(ImageFit.Contain)
           } else {
-            Column({ space: 8 }) {
+            Column({ space: 10 }) {
               Text('暂无图像')
-                .fontSize(18)
-                .fontColor(Color.Gray)
+                .fontSize(24)
+                .fontWeight(FontWeight.Medium)
+                .fontColor('#4B5563')
               Text('输入摄像头地址后点击开始连接')
-                .fontSize(13)
-                .fontColor(Color.Gray)
+                .fontSize(18)
+                .fontColor('#6B7280')
             }
           }
         }
-        .width('90%')
+        .width('100%')
         .height(360)
-        .border({ width: 1, color: '#D0D0D0', radius: 6 })
-        .backgroundColor('#FAFAFA')
+        .border({ width: 1, color: '#CBD5E1', radius: 8 })
+        .backgroundColor(Color.White)
+
+        Column({ space: 8 }) {
+          Text('连接信息')
+            .fontSize(18)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#111827')
+          Text('FPS ' + this.currentFps + ' | 缓冲 ' + this.bufferSizeKb + 'KB | 最近帧 ' +
+            this.lastFrameSizeKb + 'KB')
+            .fontSize(15)
+            .fontColor('#6B7280')
+            .width('100%')
+          Text('状态: ' + (this.isDecoding ? '解码中' : '空闲') + ' | 数据包 ' + this.packetCount)
+            .fontSize(15)
+            .fontColor('#6B7280')
+            .width('100%')
+        }
+        .width('100%')
+        .alignItems(HorizontalAlign.Start)
+        .padding(14)
+        .backgroundColor(Color.White)
+        .border({ width: 1, color: '#E5E7EB', radius: 8 })
 
         Column({ space: 6 }) {
           Text('说明')
-            .fontSize(15)
+            .fontSize(18)
             .fontWeight(FontWeight.Medium)
-          Text('1. 确保手机和 ESP32 摄像头在同一网络。')
-            .fontSize(12)
-            .fontColor(Color.Gray)
-          Text('2. ESP32 需要通过 TCP 持续发送 JPEG 图片帧。')
-            .fontSize(12)
-            .fontColor(Color.Gray)
-          Text('3. 默认端口为 8080，可按实际固件修改。')
-            .fontSize(12)
-            .fontColor(Color.Gray)
+            .fontColor('#111827')
+          Text('1. 请确保手机和 ESP32 摄像头在同一网络。')
+            .fontSize(16)
+            .fontColor('#6B7280')
+          Text('2. 默认端口为 8080，可按实际固件修改。')
+            .fontSize(16)
+            .fontColor('#6B7280')
+          Text('3. 日志信息仅用于排查连接问题。')
+            .fontSize(16)
+            .fontColor('#6B7280')
         }
-        .width('90%')
+        .width('100%')
         .alignItems(HorizontalAlign.Start)
-        .padding(12)
-        .border({ width: 1, color: '#E0E0E0', radius: 6 })
+        .padding(14)
+        .backgroundColor(Color.White)
+        .border({ width: 1, color: '#E5E7EB', radius: 8 })
         .margin({ bottom: 24 })
       }
       .width('100%')
-      .padding(18)
+      .padding({ left: 18, right: 18 })
       .alignItems(HorizontalAlign.Center)
     }
     .width('100%')
     .height('100%')
-    .backgroundColor(Color.White)
+    .backgroundColor('#F3F4F6')
   }
 }
