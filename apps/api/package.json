@@ -17,10 +17,12 @@
     "@moyan/contracts": "0.1.0",
     "dotenv": "latest",
     "fastify": "latest",
+    "pg": "^8.22.0",
     "zod": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/pg": "^8.20.0",
     "@vitest/coverage-v8": "^4.1.9",
     "tsx": "latest",
     "vitest": "latest"

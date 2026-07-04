@@ -117,7 +117,10 @@ function Dashboard() {
   }, [shadow]);
 
   const commandMutation = useMutation({
-    mutationFn: (command: Parameters<typeof api.command>[1]) => api.command(selectedDeviceId, command),
+    mutationFn: (command: Parameters<typeof api.command>[1]) => {
+      if (!selectedDeviceId) throw new Error('请先选择设备');
+      return api.command(selectedDeviceId, command);
+    },
     onSuccess: async (result) => {
       message.success(`命令 ${result.data.commandName} 已执行`);
       await Promise.all([
@@ -137,6 +140,8 @@ function Dashboard() {
 
   const selectedDevice = deviceList.find((device) => device.deviceId === selectedDeviceId);
   const provider = healthQuery.data?.data.provider ?? 'mock';
+  const apiHealthy = healthQuery.data?.data.status === 'ok';
+  const apiStatusLabel = healthQuery.isError ? '离线' : apiHealthy ? '健康' : '检查中';
   const logs = logsQuery.data?.data ?? [];
   const online = shadow?.status === 'ONLINE' || selectedDevice?.status === 'ONLINE';
   const statusLabel = streamState === 'live' ? '实时流已连接' : streamState === 'connecting' ? '正在连接实时流' : '实时流已断开';
@@ -163,7 +168,7 @@ function Dashboard() {
 
         <div className="sidebar__system-card">
           <div className="sidebar__system-row"><span><Cloud size={14} /> IoTDA</span><b>{provider === 'mock' ? '模拟环境' : '华为云'}</b></div>
-          <div className="sidebar__system-row"><span><ShieldCheck size={14} /> API</span><b className={healthQuery.data?.data.status === 'ok' ? 'ok' : 'warn'}>{healthQuery.data?.data.status === 'ok' ? '健康' : '检查中'}</b></div>
+          <div className="sidebar__system-row"><span><ShieldCheck size={14} /> API</span><b className={apiHealthy ? 'ok' : 'warn'}>{apiStatusLabel}</b></div>
           <div className="sidebar__version">CORE / 0.1.0</div>
         </div>
       </aside>
@@ -188,6 +193,7 @@ function Dashboard() {
                 className="icon-button"
                 icon={<RefreshCw size={17} />}
                 loading={shadowQuery.isFetching}
+                disabled={!selectedDeviceId}
                 onClick={() => shadowQuery.refetch()}
               />
             </Tooltip>
@@ -241,6 +247,7 @@ function Dashboard() {
               <Button
                 className="lamp-toggle"
                 loading={commandMutation.isPending}
+                disabled={!selectedDeviceId || healthQuery.isError}
                 onClick={() => commandMutation.mutate({ type: 'LIGHT', value: metrics.lamp === 'ON' ? 'OFF' : 'ON' })}
               >{metrics.lamp === 'ON' ? '关闭' : '开启'}</Button>
             </div>
@@ -250,6 +257,7 @@ function Dashboard() {
               <Segmented
                 block
                 value={metrics.mode === 'UNKNOWN' ? undefined : metrics.mode}
+                disabled={!selectedDeviceId || healthQuery.isError || commandMutation.isPending}
                 options={[
                   { label: '自动', value: 'AUTO' },
                   { label: '人工', value: 'HUMAN' },

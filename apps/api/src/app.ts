@@ -5,16 +5,19 @@ import type { ApiProblem, ApiResponse, HealthStatus, RealtimeEvent } from '@moya
 import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
 import { z, ZodError } from 'zod';
 import { config, isHuaweiCloudConfigured } from './config.js';
+import { createDatabaseClient, type DatabaseClient } from './database.js';
 import { HuaweiCloudProvider } from './providers/huaweicloud-provider.js';
 import { MockDeviceProvider } from './providers/mock-provider.js';
 import { ProviderError } from './providers/provider.js';
 import { registerAssistantRoutes } from './routes/assistant-routes.js';
+import { registerDatabaseRoutes } from './routes/database-routes.js';
 import { DifyService, type DifyServiceOptions } from './services/dify-service.js';
 import { DeviceService } from './services/device-service.js';
 
 export interface BuildAppOptions {
   devices?: DeviceService;
   dify?: Partial<DifyServiceOptions>;
+  database?: DatabaseClient | null;
   logger?: boolean;
 }
 
@@ -43,6 +46,11 @@ const commandSchema = z
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
   const devices = options.devices ?? new DeviceService(createProvider());
+  const database = options.database === undefined
+    ? config.db.enabled
+      ? createDatabaseClient()
+      : null
+    : options.database;
   const dify = new DifyService({
     apiBase: options.dify?.apiBase ?? config.dify.apiBase,
     apiKey: options.dify?.apiKey ?? config.dify.apiKey,
@@ -159,6 +167,10 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   });
 
   await registerAssistantRoutes(app, { devices, dify });
+  if (database) {
+    await registerDatabaseRoutes(app, { database });
+    app.addHook('onClose', async () => database.end());
+  }
 
   app.setNotFoundHandler((request, reply) => {
     const problem: ApiProblem = {
