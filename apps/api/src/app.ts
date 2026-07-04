@@ -11,6 +11,7 @@ import { ProviderError } from './providers/provider.js';
 import { registerAssistantRoutes } from './routes/assistant-routes.js';
 import { DifyService, type DifyServiceOptions } from './services/dify-service.js';
 import { DeviceService } from './services/device-service.js';
+import client from './database.js';
 
 export interface BuildAppOptions {
   devices?: DeviceService;
@@ -157,6 +158,166 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
       clearInterval(heartbeatTimer);
     });
   });
+
+
+//-----------------------------------数据库测试修改起始--------------------------------
+app.get('/api/v1/db/test', async (request, reply) => {
+  try {
+    const result = await client.query('SELECT * FROM test_table');
+    return reply.send(response(request, { 
+      success: true, 
+      data: result.rows,
+      count: result.rowCount 
+    }));
+  } catch (error) {
+    return reply.code(500).send({
+      success: false,
+      error: error instanceof Error ? error.message : '数据库查询失败'
+    });
+  }
+});
+
+// 查询所有用户
+app.get('/api/v1/users', async (request, reply) => {
+  try {
+    const result = await client.query('SELECT * FROM test_table ORDER BY id');
+    return reply.send({
+      success: true,
+      data: result.rows,
+      count: result.rowCount
+    });
+  } catch (error) {
+    return reply.code(500).send({
+      success: false,
+      error: error instanceof Error ? error.message : '查询失败'
+    });
+  }
+});
+
+// 根据 ID 查询单个用户
+app.get('/api/v1/users/:id', async (request, reply) => {
+    try {
+        const { id } = request.params as { id: string };
+        const result = await client.query('SELECT * FROM test_table WHERE id = $1', [id]);
+        
+        if (result.rows.length === 0) {
+            return reply.code(404).send({
+                success: false,
+                error: '用户不存在'
+            });
+        }
+        
+        return reply.send({
+            success: true,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        return reply.code(500).send({
+            success: false,
+            error: error instanceof Error ? error.message : '查询失败'
+        });
+    }
+});
+
+// 新增用户
+app.post('/api/v1/users', async (request, reply) => {
+    try {
+        const { name } = request.body as { name: string };
+        
+        if (!name || name.trim() === '') {
+            return reply.code(400).send({
+                success: false,
+                error: '姓名不能为空'
+            });
+        }
+        
+        const result = await client.query(
+            'INSERT INTO test_table (name) VALUES ($1) RETURNING *',
+            [name.trim()]
+        );
+        
+        return reply.code(201).send({
+            success: true,
+            data: result.rows[0],
+            message: '新增成功'
+        });
+    } catch (error) {
+        return reply.code(500).send({
+            success: false,
+            error: error instanceof Error ? error.message : '新增失败'
+        });
+    }
+});
+
+// 更新用户
+app.put('/api/v1/users/:id', async (request, reply) => {
+  try {
+    const { id } = request.params as { id: string };
+    const { name } = request.body as { name: string };
+        
+    if (!name || name.trim() === '') {
+      return reply.code(400).send({
+        success: false,
+        error: '姓名不能为空'
+      });
+    }
+        
+    const result = await client.query(
+      'UPDATE test_table SET name = $1 WHERE id = $2 RETURNING *',
+      [name.trim(), id]
+    );
+        
+    if (result.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: '用户不存在'
+      });
+    }
+        
+        return reply.send({
+            success: true,
+            data: result.rows[0],
+            message: '更新成功'
+        });
+  } catch (error) {
+    return reply.code(500).send({
+      success: false,
+      error: error instanceof Error ? error.message : '更新失败'
+    });
+  }
+});
+
+// 删除用户
+app.delete('/api/v1/users/:id', async (request, reply) => {
+  try {
+    const { id } = request.params as { id: string };
+        
+    const result = await client.query(
+      'DELETE FROM test_table WHERE id = $1 RETURNING *',
+      [id]
+    );
+        
+    if (result.rows.length === 0) {
+      return reply.code(404).send({
+        success: false,
+        error: '用户不存在'
+      });
+    }
+        
+    return reply.send({
+      success: true,
+      data: result.rows[0],
+      message: '删除成功'
+    });
+  } catch (error) {
+    return reply.code(500).send({
+      success: false,
+      error: error instanceof Error ? error.message : '删除失败'
+    });
+  }
+});
+//-----------------------------------数据库测试修改末尾--------------------------------
+
 
   await registerAssistantRoutes(app, { devices, dify });
 
