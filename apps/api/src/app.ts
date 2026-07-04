@@ -13,7 +13,7 @@ import { registerAssistantRoutes } from './routes/assistant-routes.js';
 import { registerDatabaseRoutes } from './routes/database-routes.js';
 import { DifyService, type DifyServiceOptions } from './services/dify-service.js';
 import { DeviceService } from './services/device-service.js';
-import client from './database.js';
+
 
 export interface BuildAppOptions {
   devices?: DeviceService;
@@ -169,8 +169,8 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
 
   await registerAssistantRoutes(app, { devices, dify });
   if (database) {
-    await registerDatabaseRoutes(app, { database: client });
-    app.addHook('onClose', async () => client.end());
+    await registerDatabaseRoutes(app, { database });
+    app.addHook('onClose', async () => database.end());
   }
 
   app.setNotFoundHandler((request, reply) => {
