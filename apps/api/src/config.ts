@@ -19,7 +19,7 @@ const configSchema = z.object({
   HUAWEICLOUD_IAM_PASSWORD: z.string().optional(),
   HUAWEICLOUD_IAM_DOMAIN: z.string().optional(),
   HUAWEICLOUD_IAM_PROJECT: z.string().default('cn-north-4'),
-  DB_ENABLED: z.enum(['true', 'false']).default('false'),
+  DB_ENABLED: z.coerce.boolean().default(false),
   DB_HOST: z.string().default('127.0.0.1'),
   DB_PORT: z.coerce.number().int().positive().default(54321),
   DB_DATABASE: z.string().default('test'),
@@ -54,7 +54,7 @@ export const config = {
     project: parsed.HUAWEICLOUD_IAM_PROJECT
   },
   db: {
-    enabled: parsed.DB_ENABLED === 'true',
+    enabled: parsed.DB_ENABLED,
     host: parsed.DB_HOST,
     port: parsed.DB_PORT,
     database: parsed.DB_DATABASE,
