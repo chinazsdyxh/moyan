@@ -1,4 +1,4 @@
-import { prompt, router } from "@kit.ArkUI";
+import { prompt, router } from '@kit.ArkUI';
 import Preferences from '@ohos.data.preferences';
 
 @Entry
@@ -13,7 +13,6 @@ struct LoginPage {
     this.initPrefs();
   }
 
-  // 初始化本地存储
   async initPrefs() {
     try {
       let ctx = getContext(this);
@@ -24,9 +23,10 @@ struct LoginPage {
     }
   }
 
-  // 加载保存的账号
   async loadAccount() {
-    if (!this.prefs) return;
+    if (!this.prefs) {
+      return;
+    }
 
     let user = await this.prefs.get('username', '');
     let pwd = await this.prefs.get('password', '');
@@ -34,51 +34,103 @@ struct LoginPage {
     this.password = pwd as string;
   }
 
-  // 保存账号到本地
   async saveAccount() {
-    if (!this.prefs) return;
+    if (!this.prefs) {
+      return;
+    }
 
     await this.prefs.put('username', this.username);
     await this.prefs.put('password', this.password);
-    await this.prefs.flush(); // 记得flush，不然可能没保存
+    await this.prefs.flush();
   }
 
   build() {
-    Column({ space: 15 }) {
-      Text("登录")
-        .fontSize(20)
-        .fontWeight(500)
+    Column() {
+      Blank()
+        .height(64)
 
-      // 用户名输入
-      TextInput({ placeholder: '用户名', text: this.username })
-        .onChange((v) => this.username = v)
+      Column({ space: 18 }) {
+        Text('智能家居')
+          .fontSize(32)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#1F2937')
+          .width('100%')
+
+        Text('请登录后查看家中设备状态')
+          .fontSize(20)
+          .fontColor('#4B5563')
+          .width('100%')
+
+        Column({ space: 14 }) {
+          Text('账号')
+            .fontSize(20)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#111827')
+            .width('100%')
+
+          TextInput({ placeholder: '请输入账号', text: this.username })
+            .onChange((v: string) => {
+              this.username = v;
+            })
+            .width('100%')
+            .height(58)
+            .fontSize(20)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor(Color.White)
+            .border({ width: 1, color: '#CBD5E1', radius: 8 })
+        }
         .width('100%')
-        .padding(10)
-        .border({ width: 1, color: '#ccc', radius: 4 })
+        .alignItems(HorizontalAlign.Start)
+        .margin({ top: 18 })
 
-      // 密码输入
-      TextInput({ placeholder: '密码', text: this.password })
-        .type(InputType.Password)
-        .onChange((v) => this.password = v)
+        Column({ space: 14 }) {
+          Text('密码')
+            .fontSize(20)
+            .fontWeight(FontWeight.Medium)
+            .fontColor('#111827')
+            .width('100%')
+
+          TextInput({ placeholder: '请输入密码', text: this.password })
+            .type(InputType.Password)
+            .onChange((v: string) => {
+              this.password = v;
+            })
+            .width('100%')
+            .height(58)
+            .fontSize(20)
+            .padding({ left: 16, right: 16 })
+            .backgroundColor(Color.White)
+            .border({ width: 1, color: '#CBD5E1', radius: 8 })
+        }
         .width('100%')
-        .padding(10)
-        .border({ width: 1, color: '#ccc', radius: 4 })
+        .alignItems(HorizontalAlign.Start)
 
-      // 登录按钮
-      Button("登录")
-        .width('100%')
-        .height(40)
-        .onClick(async () => {
-          if (this.username && this.password) {
-            await this.saveAccount();
-            router.replaceUrl({ url: 'pages/DisplayPage' }); // 补充路径，跳转到首页
-          } else {
-            prompt.showToast({ message: '请输入完整' });
-          }
-        })
-
+        Button('登录')
+          .width('100%')
+          .height(60)
+          .fontSize(22)
+          .fontWeight(FontWeight.Medium)
+          .backgroundColor('#2563EB')
+          .fontColor(Color.White)
+          .borderRadius(8)
+          .margin({ top: 16 })
+          .onClick(async () => {
+            if (this.username && this.password) {
+              await this.saveAccount();
+              router.replaceUrl({ url: 'pages/DisplayPage' });
+            } else {
+              prompt.showToast({ message: '请填写账号和密码' });
+            }
+          })
+      }
+      .width('88%')
+      .padding(24)
+      .backgroundColor('#F8FAFC')
+      .borderRadius(8)
     }
-    .width('80%')
-    .padding(20)
+    .width('100%')
+    .height('100%')
+    .alignItems(HorizontalAlign.Center)
+    .backgroundColor(Color.White)
   }
 }
